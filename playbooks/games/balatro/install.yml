@@ -1,0 +1,88 @@
+- hosts: all
+  tasks:
+    - name: Ensure Mods directory exists
+      file:
+        path: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods'
+        state: directory
+
+    - name: Clone smods repository
+      git:
+        repo: 'https://github.com/Steamodded/smods.git'
+        dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/smods'
+        version: old-calc
+
+    - name: Download lovely-injector
+      get_url:
+        url: 'https://github.com/ethangreen-dev/lovely-injector/releases/download/v0.7.1/lovely-x86_64-pc-windows-msvc.zip'
+        dest: '/home/deck/.local/share/Steam/steamapps/common/Balatro'
+
+    - name: Unzip lovely-injector
+      unarchive:
+        src: '/home/deck/.local/share/Steam/steamapps/common/Balatro/lovely-x86_64-pc-windows-msvc.zip'
+        dest: '/home/deck/.local/share/Steam/steamapps/common/Balatro'
+        remote_src: yes
+
+    - name: Cleanup (remove) lovely-injector zip
+      file:
+        path: '/home/deck/.local/share/Steam/steamapps/common/Balatro/lovely-x86_64-pc-windows-msvc.zip'
+        state: absent
+
+    - name: Install vdf package
+      pip:
+        name: vdf
+      delegate_to: localhost
+
+    - name: Copy remote localconfig.vdf to localhost (Does not work, might in the future for now there is a manual step)
+      fetch:
+        src: '/home/deck/.local/share/Steam/userdata/130900358/config/localconfig.vdf'
+        dest: '/tmp/localconfig.vdf'
+        flat: yes
+
+    - name: Modify localconfig.vdf on localhost (Does not work, might in the future for now there is a manual step)
+      script: modify_localconfig.py
+      args:
+        executable: python3
+      delegate_to: localhost
+
+    - name: Copy modified localconfig.vdf back to remote (Does not work, might in the future for now there is a manual step)
+      copy:
+        src: '/tmp/localconfig.vdf'
+        dest: '/home/deck/.local/share/Steam/userdata/130900358/config/localconfig.vdf'
+
+    - name: Manual step required (add required launch args)
+      debug:
+        msg: 'https://github.com/ValveSoftware/steam-for-linux/issues/6443 lease manually add the following to the Balatro Launch Options: WINEDLLOVERRIDES="version=n,b" %command%'
+
+    - name: Install `Talisman`
+      when: "'Cryptid' in hostvars[inventory_hostname].games.Balatro.mods"
+      git:
+        repo: 'https://github.com/MathIsFun0/Talisman'
+        dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/Talisman'
+        version: v2.0.2
+
+    - name: Install `Cryptid`
+      when: "'Cryptid' in hostvars[inventory_hostname].games.Balatro.mods"
+      git:
+        repo: 'https://github.com/MathIsFun0/Cryptid'
+        dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/Cryptid'
+
+    - name: Clone JensBalatroCollection repository
+      git:
+        repo: 'https://github.com/jenwalter666/JensBalatroCollection.git'
+        dest: '/tmp/JensBalatroCollection'
+        version: '56c08876dc9ac5b5c1a4433ffa700010073574ee'
+      when: "'Jens' in hostvars[inventory_hostname].games.Balatro.mods"
+
+    - name: Copy specified mods from JensBalatroCollection
+      copy:
+        src: '/tmp/JensBalatroCollection/{{ item }}'
+        dest: 'c/{{ item }}'
+        remote_src: yes
+      loop:
+        - Aurinko
+        - Incantation
+        - JenLib
+        - JenSkins
+        - Loop
+        - Nopeus
+      when: "'Jens' in hostvars[inventory_hostname].games.Balatro.mods"

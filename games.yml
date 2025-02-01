@@ -1,0 +1,2 @@
+- import_playbook: playbooks/games/balatro/install.yml
+  when: "'Balatro' in hostvars[inventory_hostname].games"
