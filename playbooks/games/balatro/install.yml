@@ -1,0 +1,50 @@
+- hosts: all
+  tasks:
+    - name: Ensure Mods directory exists
+      file:
+        path: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods'
+        state: directory
+
+    - name: Clone smods repository
+      git:
+        repo: 'https://github.com/Steamodded/smods.git'
+        dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/mods/smods'
+        version: 'old-calc'
+
+    - name: Download lovely-injector
+      get_url:
+        url: 'https://github.com/ethangreen-dev/lovely-injector/releases/download/v0.7.1/lovely-x86_64-pc-windows-msvc.zip'
+        dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro'
+
+    - name: Unzip lovely-injector
+      unarchive:
+        src: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/lovely-x86_64-pc-windows-msvc.zip'
+        dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro'
+        remote_src: yes
+
+    - name: Cleanup (remove) lovely-injector zip
+      file:
+        path: 'c/lovely-x86_64-pc-windows-msvc.zip'
+        state: absent
+
+    - name: Install vdf package
+      pip:
+        name: vdf
+      delegate_to: localhost
+
+    - name: Copy remote localconfig.vdf to localhost
+      fetch:
+        src: '/home/deck/.local/share/Steam/userdata/130900358/config/localconfig.vdf'
+        dest: '/tmp/localconfig.vdf'
+        flat: yes
+
+    - name: Modify localconfig.vdf on localhost
+      script: modify_localconfig.py
+      args:
+        executable: python3
+      delegate_to: localhost
+
+    - name: Copy modified localconfig.vdf back to remote
+      copy:
+        src: '/tmp/localconfig.vdf'
+        dest: '/home/deck/.local/share/Steam/userdata/130900358/config/localconfig.vdf'
