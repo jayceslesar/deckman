@@ -12,12 +12,12 @@ Users need to do a few things in order to run playbooks in this repository.
 
 ### On this computer
 1. Install [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html)
-1. Add the IP address of your Steam Deck or Steam OS device to the [`inventory/devices.yml`](inventory/devices.yml) file. An easy way to find this is to go to desktop mode on your Steam device, open up the `konsole` app and enter `ip addr`. If on wifi, you will see your device's IP under the `wlan0` entry next to `inet`.
+1. Add the IP address of your Steam Deck or Steam OS device to the [`inventory/hosts.yml`](inventory/hosts.yml) file. An easy way to find this is to go to desktop mode on your Steam device, open up the `konsole` app and enter `ip addr`. If on wifi, you will see your device's IP under the `wlan0` entry next to `inet`.
 1. Create an ssh key pair on this computer. [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) has a nice guide
 1. Copy the ssh key you just created to the Steam device with `ssh-copy-id -f -i ~/.ssh/id_ed25519 deck@ip_of_your_steam_device` (you will need your sudo password from your Steam device)
 
 ### Testing the connection
-1. Once all the above steps are completed, you should be able to run `ansible-playbook -i inventory/hosts.yml hello_world.yml -l my_deck`! You will see something like the following output:
+1. Once all the above steps are completed, you should be able to run `ansible-playbook -i inventory/hosts.yml hello_world.yml -l my_deck`. You will see something like the following output:
 ```
 PLAY [Hello World Playbook] ******************************************************************************************************************************************************
 
