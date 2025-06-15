@@ -9,7 +9,7 @@
       git:
         repo: 'https://github.com/Steamodded/smods.git'
         dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/smods'
-        version: old-calc
+        version: 1.0.0-beta-0614a
 
     - name: Download lovely-injector
       get_url:
@@ -58,7 +58,7 @@
       git:
         repo: 'https://github.com/MathIsFun0/Talisman'
         dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/Talisman'
-        version: v2.0.2
+        version: v2.2.0c
 
     - name: Install `Cryptid`
       when: "'Cryptid' in hostvars[inventory_hostname].games.Balatro.mods"
@@ -66,17 +66,23 @@
         repo: 'https://github.com/MathIsFun0/Cryptid'
         dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/Cryptid'
 
+    - name: Install `Card Sleeves`
+      when: "'Card Sleeves' in hostvars[inventory_hostname].games.Balatro.mods"
+      git:
+        repo: 'https://github.com/larswijn/CardSleeves'
+        dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/Card Sleeves'
+
     - name: Clone JensBalatroCollection repository
       git:
         repo: 'https://github.com/jenwalter666/JensBalatroCollection.git'
         dest: '/tmp/JensBalatroCollection'
-        version: '56c08876dc9ac5b5c1a4433ffa700010073574ee'
+        version: 'f091a743a56cc48cd493df7e294cdb29cd5f7d1e'
       when: "'Jens' in hostvars[inventory_hostname].games.Balatro.mods"
 
     - name: Copy specified mods from JensBalatroCollection
       copy:
         src: '/tmp/JensBalatroCollection/{{ item }}'
-        dest: 'c/{{ item }}'
+        dest: '/home/deck/.local/share/Steam/steamapps/compatdata/2379780/pfx/drive_c/users/steamuser/AppData/Roaming/Balatro/Mods/{{ item }}'
         remote_src: yes
       loop:
         - Aurinko
